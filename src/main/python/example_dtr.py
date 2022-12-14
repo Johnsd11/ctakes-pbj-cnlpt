@@ -1,5 +1,5 @@
 import cas_annotator
-from ctakes_types import *
+from ctakes_pbj.pbj_tools import ctakes_types
 import asyncio
 from cnlpt.api.cnlp_rest import EntityDocument
 import cnlpt.api.dtr_rest as dtr_rest
@@ -21,7 +21,7 @@ class ExampleDtr(cas_annotator.CasAnnotator):
 
     def process(self, cas):
         print("processing")
-        entities = cas.select(EventMention)
+        entities = cas.select(ctakes_types.EventMention)
 
         offsets = []
         for e in entities:
@@ -36,14 +36,16 @@ class ExampleDtr(cas_annotator.CasAnnotator):
 
     async def dtr_caller(self, cas, entities, offsets):
         # event_mention_type = cas.typesystem.get_type(EventMention)
-        event_type = cas.typesystem.get_type(Event)
-        event_properties_type = cas.typesystem.get_type(EventProperties)
+        event_type = cas.typesystem.get_type(ctakes_types.Event)
+        event_properties_type = cas.typesystem.get_type(ctakes_types.EventProperties)
         text = cas.sofa_string
         eDoc = EntityDocument(doc_text=text, entities=offsets)
 
         #async with sem:
         dtr_output = await dtr_rest.process(eDoc)
         i = 0
+        rj = dtr_output.json()
+        pprint(rj)
         for e in entities:
             eProps = event_properties_type()
             eProps.set("docTimeRel", dtr_output.statuses[i])

@@ -1,8 +1,8 @@
 import cas_annotator
-from ctakes_types import *
+from ctakes_pbj.pbj_tools import ctakes_types
+from ctakes_pbj.pbj_tools import create_type
 import requests
-import create_type
-from pprint import pprint
+from pprint import *
 
 
 class ExampleTemporalRest(cas_annotator.CasAnnotator):
@@ -10,16 +10,16 @@ class ExampleTemporalRest(cas_annotator.CasAnnotator):
     def process(self, cas):
 
         process_url = 'http://localhost:8000/temporal/process_sentence'
-        event_mention_type = cas.typesystem.get_type(EventMention)
-        event_type = cas.typesystem.get_type(Event)
-        event_properties_type = cas.typesystem.get_type(EventProperties)
+        event_mention_type = cas.typesystem.get_type(ctakes_types.EventMention)
+        event_type = cas.typesystem.get_type(ctakes_types.Event)
+        event_properties_type = cas.typesystem.get_type(ctakes_types.EventProperties)
 
-        for sentence in cas.select(Sentence):
+        for sentence in cas.select(ctakes_types.Sentence):
             text = sentence.get_covered_text()
             sentenceBegin = sentence.begin
             r = requests.post(process_url, json={'sentence': text})
             rj = r.json()
-            # pprint(rj)
+            pprint(rj)
             # check first if events is not empty
             evlist = rj['events']
             for ev in evlist:

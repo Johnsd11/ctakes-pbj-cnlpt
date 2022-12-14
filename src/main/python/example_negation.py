@@ -1,10 +1,11 @@
 import cas_annotator
-from ctakes_types import *
+from ctakes_pbj.pbj_tools import ctakes_types
 import asyncio
-import requests
 from cnlpt.api.cnlp_rest import EntityDocument
 import cnlpt.api.negation_rest as negation_rest
+from cnlpt.api.negation_rest import NegationResults
 import time
+import sys
 
 sem = asyncio.Semaphore(1)
 
@@ -21,8 +22,8 @@ class ExampleNegation(cas_annotator.CasAnnotator):
     def process(self, cas):
 
         print("processing")
-        eventMentions = cas.select(EventMention)
-        sites = cas.select(AnatomicalSiteMention)
+        eventMentions = cas.select(ctakes_types.EventMention)
+        sites = cas.select(ctakes_types.AnatomicalSiteMention)
         entities = eventMentions + sites
 
         offsets = []
@@ -47,5 +48,5 @@ class ExampleNegation(cas_annotator.CasAnnotator):
         i = 0
         for e in entities:
             # -1 represents that it had happened, 1 represents that it is negated
-            e.polarity = negation_output[i]
+            e.polarity = negation_output.statuses[i]
             i += 1

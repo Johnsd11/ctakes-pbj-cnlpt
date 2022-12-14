@@ -3,15 +3,26 @@
 
 # These are the lines that ignore the typesystem errors
 import warnings
-import sys
-sys.path.append(r'C:\Users\ch229935\Desktop\cTakes2\ctakes-pbj\src\main\python')
-sys.path.append(r'C:\Users\ch229935\Desktop\cTakes2\ctakes-pbj\src\main\python\ctakes_pbj')
+# import sys
+
+# sys.path.append(r'C:\Users\ch229935\Desktop\cTakes2\ctakes-pbj\src\main\python')
+# sys.path.append(r'C:\Users\ch229935\Desktop\cTakes2\ctakes-pbj\src\main\python\ctakes_pbj')
+#
+# from ctakes_pbj import pbj_receiver
+# from pbj_tools import pbj_pipeline
+# from ctakes_pbj import pbj_sender
+# from ctakes_pbj import pbj_util
+# from example_dtr import ExampleDtr
 
 from ctakes_pbj import pbj_receiver
-from pbj_tools import pbj_pipeline
+from ctakes_pbj.pbj_tools import pbj_pipeline
 from ctakes_pbj import pbj_sender
 from ctakes_pbj import pbj_util
 from example_dtr import ExampleDtr
+from ctakes_pbj import arg_parser
+args = arg_parser.get_args()
+
+
 warnings.filterwarnings("ignore")
 
 
@@ -24,9 +35,9 @@ def main():
 
     pipeline = pbj_pipeline.Pipeline()
     pipeline.add(ExampleDtr())
-    pipeline.add(pbj_sender.PBJSender(queue_send_cas))
+    pipeline.add(pbj_sender.PBJSender(args.send_queue, args.host_name, args.port_name, args.password, args.username))
     pipeline.initialize()
-    pbj_receiver.start_receiver(pipeline, queue_receive_cas)
+    pbj_receiver.start_receiver(pipeline, args.receive_queue, args.host_name, args.port_name)
 
 
 main()

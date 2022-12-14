@@ -1,5 +1,6 @@
 import cas_annotator
-from ctakes_types import *
+from ctakes_pbj.pbj_tools import ctakes_types
+
 import requests
 
 
@@ -9,8 +10,8 @@ class ExampleNegationRest(cas_annotator.CasAnnotator):
 
         process_url = 'http://localhost:8000/negation/process'
 
-        eventMentions = cas.select(EventMention)
-        sites = cas.select(AnatomicalSiteMention)
+        eventMentions = cas.select(ctakes_types.EventMention)
+        sites = cas.select(ctakes_types.AnatomicalSiteMention)
         entities = eventMentions + sites
 
         t = []
