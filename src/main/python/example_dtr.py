@@ -1,4 +1,4 @@
-import cas_annotator
+from ctakes_pbj.cas_handlers import cas_annotator
 from ctakes_pbj.pbj_tools import ctakes_types
 import asyncio
 from cnlpt.api.cnlp_rest import EntityDocument
@@ -35,7 +35,6 @@ class ExampleDtr(cas_annotator.CasAnnotator):
         await dtr_rest.startup_event()
 
     async def dtr_caller(self, cas, entities, offsets):
-        # event_mention_type = cas.typesystem.get_type(EventMention)
         event_type = cas.typesystem.get_type(ctakes_types.Event)
         event_properties_type = cas.typesystem.get_type(ctakes_types.EventProperties)
         text = cas.sofa_string

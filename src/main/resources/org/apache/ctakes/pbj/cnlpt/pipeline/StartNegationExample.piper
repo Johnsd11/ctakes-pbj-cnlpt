@@ -42,10 +42,11 @@ add CtakesRunner Pipe="-p org/apache/ctakes/pbj/pipeline/StartAllExample_end -o 
 // pip the dependency packages if your environment doesn't have them.
 //
 
-add CommandRunner Command="python -m pip install dkpro-cassis" Wait=yes
-add CommandRunner Command="python -m pip install stomp.py" Wait=yes
+// add CommandRunner Command="python -m pip install dkpro-cassis" Wait=yes
+// add CommandRunner Command="python -m pip install stomp.py" Wait=yes
 // add CommandRunner Command="python -m pip install cnlp_transformers" Wait=yes
-add CommandRunner Command="python ctakes-pbj-cnlpt\src\main\python\example_negation_pipeline.py" LogFile=negation_py.log
+add CommandRunner Command="python -m pip install ctakes-pbj" Wait=yes
+add CommandRunner Command="python ctakes-pbj-cnlpt\src\main\python\example_negation_pipeline.py test/JavaToPython test/PythonToJava" LogFile=negation_py.log
 
 //
 // The pipeline run by this instance of cTAKES.

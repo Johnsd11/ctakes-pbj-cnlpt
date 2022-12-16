@@ -1,14 +1,36 @@
 import asyncio
-# from cnlpt.api.temporal_rest import *
-# from cnlpt.api.temporal_rest import SentenceDocument
 import cnlpt.api.temporal_rest as temporal_rest
 import time
+from ctakes_pbj.pbj_tools import create_type
 from ctakes_pbj.pbj_tools import ctakes_types
 from pprint import pprint
-
-import cas_annotator
+from ctakes_pbj.cas_handlers import cas_annotator
 
 sem = asyncio.Semaphore(1)
+
+
+# In this example EventMentions have already been created.
+# When cnlpt returns an Event, this example attempts to match it
+# to an existing EventMention before creating a new one.
+
+def get_event_mention(cas, e_mentions, e_m_begins, begin, end):
+    i = 0
+    for b in e_m_begins:
+        if b == begin:
+            return e_mentions[i]
+        i += 1
+    i = 0
+    event_men_type = cas.typesystem.get_type(ctakes_types.EventMention)
+    return create_type.add_type(cas, event_men_type, begin, end)
+
+
+def get_token_index(tokens, s_begin):
+    i=0
+    for token in tokens:
+        if token.begin == s_begin:
+            return i
+        i += 1
+    return -1
 
 
 class ExampleTemporal(cas_annotator.CasAnnotator):
@@ -22,19 +44,29 @@ class ExampleTemporal(cas_annotator.CasAnnotator):
 
     def process(self, cas):
         print("processing")
+        doc_id = cas.select(ctakes_types.DocumentID)
+        print(doc_id)
         sentences = cas.select(ctakes_types.Sentence)
+        e_mentions = cas.select(ctakes_types.EventMention)
+        e_m_begins = []
+        for e in e_mentions:
+            e_m_begins.append(e.begin)
+        tokens = cas.select(ctakes_types.BaseToken)
+        token_begins = []
+        for t in tokens:
+            token_begins.append(t.begin)
 
         print("calling temporal caller" + str(time.time()))
-        asyncio.run(self.temporal_caller(cas, sentences))
+        asyncio.run(self.temporal_caller(cas, sentences, e_mentions, e_m_begins, tokens))
         print("done calling temporal " + str(time.time()))
+
 
     async def init_caller(self):
         await temporal_rest.startup_event()
 
-    async def temporal_caller(self, cas, sentences):
+    async def temporal_caller(self, cas, sentences, e_mentions, e_m_begins, tokens):
         event_type = cas.typesystem.get_type(ctakes_types.Event)
         event_properties_type = cas.typesystem.get_type(ctakes_types.EventProperties)
-        event_men_type = cas.typesystem.get_type(ctakes_types.EventMention)
         timex_type = cas.typesystem.get_type(ctakes_types.TimeMention)
         tlink_type = cas.typesystem.get_type(ctakes_types.TemporalTextRelation)
         argument_type = cas.typesystem.get_type(ctakes_types.RelationArgument)
@@ -42,7 +74,13 @@ class ExampleTemporal(cas_annotator.CasAnnotator):
         # async with sem:
         for s in sentences:
             text = s.get_covered_text()
-            sentence_begin = s.begin
+
+            first_sentence_token_index = get_token_index(tokens, s.begin)
+            if first_sentence_token_index == -1:
+                print("index is -1", text)
+                continue
+
+            print(text)
             sentence_doc = temporal_rest.SentenceDocument(sentence=text)
 
             temporal_result = await temporal_rest.process_sentence(sentence_doc)
@@ -53,16 +91,10 @@ class ExampleTemporal(cas_annotator.CasAnnotator):
             i = 0
             for t in temporal_result.timexes:
                 for tt in t:
-                    # Will this work?
-                    # begin = sentence_begin + tt.begin
-                    # end = sentence_begin + tt.end
-                    # timex = add_type(cas, timex_type, begin, end)
-                    timex = timex_type()
-                    timex.begin = sentence_begin + tt.begin
-                    timex.end = sentence_begin + tt.end
-                    cas.add(timex)
-                    # end Will this work?
-                    # timex_list.append(timex)
+
+                    begin_token = tokens[first_sentence_token_index + tt.begin]
+                    end_token = tokens[first_sentence_token_index + tt.end]
+                    timex = create_type.add_type(cas, timex_type, begin_token.begin, end_token.end)
                     events_times['TIMEX-' + str(i)] = timex
                     i += 1
 
@@ -74,18 +106,10 @@ class ExampleTemporal(cas_annotator.CasAnnotator):
                     event = event_type()
                     event.properties = e_props
                     cas.add(event)
-                    # Will this work? 1
-                    # begin = sentence_begin + ee.begin
-                    # end = sentence_begin + ee.end
-                    # event_mention = add_type(cas, event_men_type, begin, end)
-                    event_mention = event_men_type()
-                    event_mention.begin = sentence_begin + ee.begin
-                    event_mention.end = sentence_begin + ee.end
-                    # end Will this work? 1
+                    begin_token = tokens[first_sentence_token_index + ee.begin]
+                    end_token = tokens[first_sentence_token_index + ee.end]
+                    event_mention = get_event_mention(cas, e_mentions, e_m_begins, begin_token.begin, end_token.end)
                     event_mention.event = event
-                    # wtw? 2
-                    cas.add(event_mention)
-                    # end wtw? 2
                     events_times['EVENT-' + str(i)] = event_mention
                     i += 1
 
@@ -93,8 +117,10 @@ class ExampleTemporal(cas_annotator.CasAnnotator):
                 for rr in r:
                     arg1 = argument_type()
                     arg1.argument = events_times[rr.arg1]
+                    print("Arg1 =", events_times[rr.arg1])
                     arg2 = argument_type()
                     arg2.argument = events_times[rr.arg2]
+                    print("Arg2 =", events_times[rr.arg2])
                     tlink = tlink_type()
                     tlink.category = rr.category
                     tlink.arg1 = arg1

@@ -1,11 +1,9 @@
-import cas_annotator
+from ctakes_pbj.cas_handlers import cas_annotator
 from ctakes_pbj.pbj_tools import ctakes_types
 import asyncio
 from cnlpt.api.cnlp_rest import EntityDocument
 import cnlpt.api.negation_rest as negation_rest
-from cnlpt.api.negation_rest import NegationResults
 import time
-import sys
 
 sem = asyncio.Semaphore(1)
 
@@ -38,8 +36,6 @@ class ExampleNegation(cas_annotator.CasAnnotator):
         await negation_rest.startup_event()
 
     async def negation_caller(self, cas, entities, offsets):
-        # event_type = cas.typesystem.get_type(Event)
-        # event_properties_type = cas.typesystem.get_type(EventProperties)
         text = cas.sofa_string
         eDoc = EntityDocument(doc_text=text, entities=offsets)
 

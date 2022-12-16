@@ -25,11 +25,6 @@ warnings.filterwarnings("ignore")
 
 def main():
 
-    # hostname = pbj_util.DEFAULT_HOST
-    # port = pbj_util.DEFAULT_PORT
-    # queue_receive_cas = 'test/JavaToPython'
-    # queue_send_cas = 'test/PythonToJava'
-
     pipeline = pbj_pipeline.Pipeline()
     pipeline.add(ExampleTemporal())
     pipeline.add(pbj_sender.PBJSender(args.send_queue, args.host_name, args.port_name, args.password, args.username))

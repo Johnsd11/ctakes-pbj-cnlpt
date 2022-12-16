@@ -1,4 +1,4 @@
-import cas_annotator
+from ctakes_pbj.cas_handlers import cas_annotator
 from ctakes_pbj.pbj_tools import ctakes_types
 
 import requests
