@@ -12,14 +12,14 @@
 - We can add more than one program
 
 `pipeline.add(pbj_sender.PBJSender(args.send_queue, args.host_name, args.port_name, args.password, args.username))`<br>
-- We now can add the pbj sender with the send_queue and host_name as mandatory arguments. The rest of the arguments have<br>
+- We now can add the pbj sender with the send_queue and host_name as mandatory arguments. The rest of the arguments have
 defaults, but are editable. 
 
 `pipeline.initialize()`<br>
 - We add this line to initialize the pipeline, it isn't necessary but it's good practice.
 
 `pbj_receiver.start_receiver(pipeline, args.receive_queue, args.host_name, args.port_name)`<br>
-- Finally we start the pbj receiver which requries pipeline, receive_queue, and host_name as mandatory arguments; port_name<br>
+- Finally we start the pbj receiver which requries pipeline, receive_queue, and host_name as mandatory arguments; port_name
 has a default, but is also editable.
 
 # Building a Piperfile
