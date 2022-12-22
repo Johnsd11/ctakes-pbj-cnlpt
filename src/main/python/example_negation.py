@@ -4,6 +4,7 @@ import asyncio
 from cnlpt.api.cnlp_rest import EntityDocument
 import cnlpt.api.negation_rest as negation_rest
 import time
+from helper_functions import *
 
 sem = asyncio.Semaphore(1)
 
@@ -24,9 +25,7 @@ class ExampleNegation(cas_annotator.CasAnnotator):
         sites = cas.select(ctakes_types.AnatomicalSiteMention)
         entities = eventMentions + sites
 
-        offsets = []
-        for e in entities:
-            offsets.append([e.begin, e.end])
+        offsets = get_offset(entities)
 
         print("calling negation caller" + str(time.time()))
         asyncio.run(self.negation_caller(cas, entities, offsets))

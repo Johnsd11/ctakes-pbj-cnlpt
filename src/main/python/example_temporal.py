@@ -5,6 +5,7 @@ from ctakes_pbj.pbj_tools import create_type
 from ctakes_pbj.pbj_tools import ctakes_types
 from pprint import pprint
 from ctakes_pbj.cas_handlers import cas_annotator
+from ctakes_pbj.pbj_tools.token_tools import *
 
 sem = asyncio.Semaphore(1)
 
@@ -24,13 +25,6 @@ def get_event_mention(cas, e_mentions, e_m_begins, begin, end):
     return create_type.add_type(cas, event_men_type, begin, end)
 
 
-def get_token_index(tokens, s_begin):
-    i=0
-    for token in tokens:
-        if token.begin == s_begin:
-            return i
-        i += 1
-    return -1
 
 
 class ExampleTemporal(cas_annotator.CasAnnotator):
@@ -75,7 +69,7 @@ class ExampleTemporal(cas_annotator.CasAnnotator):
         for s in sentences:
             text = s.get_covered_text()
 
-            first_sentence_token_index = get_token_index(tokens, s.begin)
+            first_sentence_token_index = get_token_index_by_offset(tokens, s.begin)
             if first_sentence_token_index == -1:
                 print("index is -1", text)
                 continue
