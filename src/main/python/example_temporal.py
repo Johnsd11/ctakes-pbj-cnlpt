@@ -6,25 +6,10 @@ from ctakes_pbj.pbj_tools import ctakes_types
 from pprint import pprint
 from ctakes_pbj.cas_handlers import cas_annotator
 from ctakes_pbj.pbj_tools.token_tools import *
+from ctakes_pbj.pbj_tools.get_common_types import get_event_mention
+from ctakes_pbj.pbj_tools.create_relation import create_relation
 
 sem = asyncio.Semaphore(1)
-
-
-# In this example EventMentions have already been created.
-# When cnlpt returns an Event, this example attempts to match it
-# to an existing EventMention before creating a new one.
-
-def get_event_mention(cas, e_mentions, e_m_begins, begin, end):
-    i = 0
-    for b in e_m_begins:
-        if b == begin:
-            return e_mentions[i]
-        i += 1
-    i = 0
-    event_men_type = cas.typesystem.get_type(ctakes_types.EventMention)
-    return create_type.add_type(cas, event_men_type, begin, end)
-
-
 
 
 class ExampleTemporal(cas_annotator.CasAnnotator):
@@ -53,7 +38,6 @@ class ExampleTemporal(cas_annotator.CasAnnotator):
         print("calling temporal caller" + str(time.time()))
         asyncio.run(self.temporal_caller(cas, sentences, e_mentions, e_m_begins, tokens))
         print("done calling temporal " + str(time.time()))
-
 
     async def init_caller(self):
         await temporal_rest.startup_event()
@@ -109,16 +93,19 @@ class ExampleTemporal(cas_annotator.CasAnnotator):
 
             for r in temporal_result.relations:
                 for rr in r:
+
                     arg1 = argument_type()
                     arg1.argument = events_times[rr.arg1]
                     print("Arg1 =", events_times[rr.arg1])
                     arg2 = argument_type()
                     arg2.argument = events_times[rr.arg2]
                     print("Arg2 =", events_times[rr.arg2])
-                    tlink = tlink_type()
-                    tlink.category = rr.category
-                    tlink.arg1 = arg1
-                    tlink.arg2 = arg2
+                    tlink = create_relation(tlink_type, rr.category, arg1, arg2)
                     cas.add(tlink)
 
                     print(rr.arg1, rr.arg2, rr.arg1_start, rr.arg2_start)
+
+
+
+
+
