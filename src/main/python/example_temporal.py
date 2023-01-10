@@ -12,7 +12,7 @@ from ctakes_pbj.pbj_tools.create_relation import create_relation
 sem = asyncio.Semaphore(1)
 
 
-class ExampleTemporal(cas_annotator.CasAnnotator):
+class ExampleTemporalAnnotator(cas_annotator.CasAnnotator):
 
     # Initializes the cNLPT, which loads its Temporal model.
     def initialize(self):

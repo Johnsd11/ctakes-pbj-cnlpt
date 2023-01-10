@@ -10,7 +10,7 @@ from pprint import pprint
 sem = asyncio.Semaphore(1)
 
 
-class ExampleDtr(cas_annotator.CasAnnotator):
+class ExampleDtrAnnotator(cas_annotator.CasAnnotator):
 
     def initialize(self):
         # startup_event()
@@ -21,31 +21,31 @@ class ExampleDtr(cas_annotator.CasAnnotator):
 
     def process(self, cas):
         print("processing")
-        entities = cas.select(ctakes_types.EventMention)
+        annotations = cas.select(ctakes_types.EventMention)
 
         offsets = []
-        for e in entities:
+        for e in annotations:
             offsets.append([e.begin, e.end])
 
         print("calling dtr caller" + str(time.time()))
-        asyncio.run(self.dtr_caller(cas, entities, offsets))
+        asyncio.run(self.dtr_caller(cas, annotations, offsets))
         print("done calling dtr " + str(time.time()))
 
     async def init_caller(self):
         await dtr_rest.startup_event()
 
-    async def dtr_caller(self, cas, entities, offsets):
+    async def dtr_caller(self, cas, annotations, offsets):
         event_type = cas.typesystem.get_type(ctakes_types.Event)
         event_properties_type = cas.typesystem.get_type(ctakes_types.EventProperties)
         text = cas.sofa_string
-        eDoc = EntityDocument(doc_text=text, entities=offsets)
+        eDoc = EntityDocument(doc_text=text, annotations=offsets)
 
         #async with sem:
         dtr_output = await dtr_rest.process(eDoc)
         i = 0
         rj = dtr_output.json()
         pprint(rj)
-        for e in entities:
+        for e in annotations:
             eProps = event_properties_type()
             eProps.set("docTimeRel", dtr_output.statuses[i])
 

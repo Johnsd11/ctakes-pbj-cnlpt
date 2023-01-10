@@ -4,12 +4,12 @@ import asyncio
 from cnlpt.api.cnlp_rest import EntityDocument
 import cnlpt.api.negation_rest as negation_rest
 import time
-from helper_functions import *
+from ctakes_pbj.helper_functions import *
 
 sem = asyncio.Semaphore(1)
 
 
-class ExampleNegation(cas_annotator.CasAnnotator):
+class ExampleNegationAnnotator(cas_annotator.CasAnnotator):
 
     # Initializes the cNLPT, which loads its Negation model.
     def initialize(self):
