@@ -3,7 +3,9 @@ from ctakes_pbj.pbj_tools import ctakes_types
 
 import requests
 
-
+# This is similar to the Negation cNLPT example, 
+# but while that uses cNLPT directly, this uses the cNLPT REST API.
+# It is simply an example of how REST calls can be performed.
 class ExampleNegationRest(cas_annotator.CasAnnotator):
 
     def process(self, cas):
