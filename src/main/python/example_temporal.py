@@ -14,6 +14,7 @@ sem = asyncio.Semaphore(1)
 
 class ExampleTemporal(cas_annotator.CasAnnotator):
 
+    # Initializes the cNLPT, which loads its Temporal model.
     def initialize(self):
         # startup_event()
         print("starting init " + str(time.time()))
@@ -21,6 +22,7 @@ class ExampleTemporal(cas_annotator.CasAnnotator):
 
         print("done with init " + str(time.time()))
 
+    # Process Sentences, adding Times, Events and TLinks found by cNLPT. 
     def process(self, cas):
         print("processing")
         doc_id = cas.select(ctakes_types.DocumentID)
