@@ -11,6 +11,7 @@ sem = asyncio.Semaphore(1)
 
 class ExampleNegation(cas_annotator.CasAnnotator):
 
+    # Initializes the cNLPT, which loads its Negation model.
     def initialize(self):
         # startup_event()
         print("starting init " + str(time.time()))
@@ -18,6 +19,7 @@ class ExampleNegation(cas_annotator.CasAnnotator):
 
         print("done with init " + str(time.time()))
 
+    # Processes the document to get Negation on Events from cNLPT.
     def process(self, cas):
 
         print("processing")
